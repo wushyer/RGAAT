@@ -1,5 +1,6 @@
 #!~/miniconda2/bin/perl
-#Author:Liu Wanfei <liuwf@big.ac.cn>
+#Author:Liu Wanfei <liuwf@big.ac.cn> 
+#Maintenance: Shuangyang Wu <wushy@big.ac.cn>
 #Description: This program can assemble and/or annotate genome for new genome and known genome upgrade using sequence alignment file (SAM or BAM format), sequence variant file (VCF format or five coloum table (tab-delimited, including chromosome, position, id, reference allele and alternative allele)) or new genome sequence file (FASTA format) based on reference genome sequence file (FASTA format) and/or annotation file (TBL, GTF, GFF, GFF3 or BED format).
 
 use strict;
@@ -19,8 +20,8 @@ my %opts;
 
 my $usage=<<USAGE; #******* Instruction of this program *********#
 
-	Author: Wanfei Liu
-	Email: <liuwf\@big.ac.cn>
+	Author: Wanfei Liu & Shuangyang Wu
+	Email: <liuwf\@big.ac.cn> <wushy\@big.ac.cn>
 	Date: May 16, 2016
 	Version: $version
 
@@ -2196,70 +2197,70 @@ sub codon2amino {
 	my $codon=$_[0];
 	$codon = uc($codon);
 	my(%genetic_code)=(
-	'TCA' => 'S', # Serine ££Ë¿°±Ëá 
-	'TCC' => 'S', # Serine ££Ë¿°±Ëá 
-	'TCG' => 'S', # Serine ££Ë¿°±Ëá 
-	'TCT' => 'S', # Serine ££Ë¿°±Ëá 
-	'TTC' => 'F', # Phenylalanine ££±½±û°±Ëá 
-	'TTT' => 'F', # Phenylalanine ££±½±û°±Ëá 
-	'TTA' => 'L', # Leucine ££ÁÁ°±Ëá 
-	'TTG' => 'L', # Leucine ££ÁÁ°±Ëá 
-	'TAC' => 'Y', # Tyrosine ££ÀÒ°±Ëá 
-	'TAT' => 'Y', # Tyrosine ££ÀÒ°±Ëá 
-	'TAA' => '*', # Stop ££Í£Ö¹ 
-	'TAG' => '*', # Stop ££Í£Ö¹ 
-	'TGC' => 'C', # Cysteine ££°ëë×°±Ëá 
-	'TGT' => 'C', # Cysteine ££°ëë×°±Ëá 
-	'TGA' => '*', # Stop ££Í£Ö¹ 
-	'TGG' => 'W', # Tryptophan ££É«°±Ëá 
-	'CTA' => 'L', # Leucine ££ÁÁ°±Ëá 
-	'CTC' => 'L', # Leucine ££ÁÁ°±Ëá 
-	'CTG' => 'L', # Leucine ££ÁÁ°±Ëá 
-	'CTT' => 'L', # Leucine ££ÁÁ°±Ëá 
-	'CCA' => 'P', # Proline ££¸¬°±Ëá 
-	'CAT' => 'H', # Histidine ££×é°±Ëá 
-	'CAA' => 'Q', # Glutamine ££¹È°±õ£°· 
-	'CAG' => 'Q', # Glutamine ££¹È°±õ£°· 
-	'CGA' => 'R', # Arginine ££¾«°±Ëá 
-	'CGC' => 'R', # Arginine ££¾«°±Ëá 
-	'CGG' => 'R', # Arginine ££¾«°±Ëá 
-	'CGT' => 'R', # Arginine ££¾«°±Ëá 
-	'ATA' => 'I', # Isoleucine ££ÒìÁÁ°±Ëá 
-	'ATC' => 'I', # Isoleucine ££ÒìÁÁ°±Ëá 
-	'ATT' => 'I', # Isoleucine ££ÒìÁÁ°±Ëá 
-	'ATG' => 'M', # Methionine ££µ°°±Ëá 
-	'ACA' => 'T', # Threonine ££ËÕ°±Ëá 
-	'ACC' => 'T', # Threonine ££ËÕ°±Ëá 
-	'ACG' => 'T', # Threonine ££ËÕ°±Ëá 
-	'ACT' => 'T', # Threonine ££ËÕ°±Ëá 
-	'AAC' => 'N', # Asparagine ££Ìì¶¬õ£°· 
-	'AAT' => 'N', # Asparagine ££Ìì¶¬õ£°· 
-	'AAA' => 'K', # Lysine ££Àµ°±Ëá 
-	'AAG' => 'K', # Lysine ££Àµ°±Ëá 
-	'AGC' => 'S', # Serine ££Ë¿°±Ëá 
-	'AGT' => 'S', # Serine ££Ë¿°±Ëá 
-	'AGA' => 'R', # Arginine ££¾«°±Ëá 
-	'AGG' => 'R', # Arginine ££¾«°±Ëá 
-	'CCC' => 'P', # Proline ££¸¬°±Ëá 
-	'CCG' => 'P', # Proline ££¸¬°±Ëá 
-	'CCT' => 'P', # Proline ££¸¬°±Ëá 
-	'CAC' => 'H', # Histidine ££×é°±Ëá 
-	'GTA' => 'V', # Valine ££çÓ°±Ëá 
-	'GTC' => 'V', # Valine ££çÓ°±Ëá 
-	'GTG' => 'V', # Valine ££çÓ°±Ëá 
-	'GTT' => 'V', # Valine ££çÓ°±Ëá 
-	'GCA' => 'A', # Alanine ££±û°±Ëá 
-	'GCC' => 'A', # Alanine ££±û°±Ëá 
-	'GCG' => 'A', # Alanine ££±û°±Ëá 
-	'GCT' => 'A', # Alanine ££±û°±Ëá 
-	'GAC' => 'D', # Aspartic Acid ££Ìì¶¬°±Ëá 
-	'GAT' => 'D', # Aspartic Acid ££Ìì¶¬°±Ëá 
-	'GAA' => 'E', # Glutamic Acid ££¹È°±Ëá 
-	'GAG' => 'E', # Glutamic Acid ££¹È°±Ëá 
-	'GGA' => 'G', # Glycine ££¸Ê°±Ëá 
-	'GGC' => 'G', # Glycine ££¸Ê°±Ëá 
-	'GGG' => 'G', # Glycine ££¸Ê°±Ëá 
-	'GGT' => 'G' # Glycine ££¸Ê°±Ëá 
+	'TCA' => 'S', # Serine Â£Â£Ã‹Â¿Â°Â±Ã‹Ã¡ 
+	'TCC' => 'S', # Serine Â£Â£Ã‹Â¿Â°Â±Ã‹Ã¡ 
+	'TCG' => 'S', # Serine Â£Â£Ã‹Â¿Â°Â±Ã‹Ã¡ 
+	'TCT' => 'S', # Serine Â£Â£Ã‹Â¿Â°Â±Ã‹Ã¡ 
+	'TTC' => 'F', # Phenylalanine Â£Â£Â±Â½Â±Ã»Â°Â±Ã‹Ã¡ 
+	'TTT' => 'F', # Phenylalanine Â£Â£Â±Â½Â±Ã»Â°Â±Ã‹Ã¡ 
+	'TTA' => 'L', # Leucine Â£Â£ÃÃÂ°Â±Ã‹Ã¡ 
+	'TTG' => 'L', # Leucine Â£Â£ÃÃÂ°Â±Ã‹Ã¡ 
+	'TAC' => 'Y', # Tyrosine Â£Â£Ã€Ã’Â°Â±Ã‹Ã¡ 
+	'TAT' => 'Y', # Tyrosine Â£Â£Ã€Ã’Â°Â±Ã‹Ã¡ 
+	'TAA' => '*', # Stop Â£Â£ÃÂ£Ã–Â¹ 
+	'TAG' => '*', # Stop Â£Â£ÃÂ£Ã–Â¹ 
+	'TGC' => 'C', # Cysteine Â£Â£Â°Ã«Ã«Ã—Â°Â±Ã‹Ã¡ 
+	'TGT' => 'C', # Cysteine Â£Â£Â°Ã«Ã«Ã—Â°Â±Ã‹Ã¡ 
+	'TGA' => '*', # Stop Â£Â£ÃÂ£Ã–Â¹ 
+	'TGG' => 'W', # Tryptophan Â£Â£Ã‰Â«Â°Â±Ã‹Ã¡ 
+	'CTA' => 'L', # Leucine Â£Â£ÃÃÂ°Â±Ã‹Ã¡ 
+	'CTC' => 'L', # Leucine Â£Â£ÃÃÂ°Â±Ã‹Ã¡ 
+	'CTG' => 'L', # Leucine Â£Â£ÃÃÂ°Â±Ã‹Ã¡ 
+	'CTT' => 'L', # Leucine Â£Â£ÃÃÂ°Â±Ã‹Ã¡ 
+	'CCA' => 'P', # Proline Â£Â£Â¸Â¬Â°Â±Ã‹Ã¡ 
+	'CAT' => 'H', # Histidine Â£Â£Ã—Ã©Â°Â±Ã‹Ã¡ 
+	'CAA' => 'Q', # Glutamine Â£Â£Â¹ÃˆÂ°Â±ÃµÂ£Â°Â· 
+	'CAG' => 'Q', # Glutamine Â£Â£Â¹ÃˆÂ°Â±ÃµÂ£Â°Â· 
+	'CGA' => 'R', # Arginine Â£Â£Â¾Â«Â°Â±Ã‹Ã¡ 
+	'CGC' => 'R', # Arginine Â£Â£Â¾Â«Â°Â±Ã‹Ã¡ 
+	'CGG' => 'R', # Arginine Â£Â£Â¾Â«Â°Â±Ã‹Ã¡ 
+	'CGT' => 'R', # Arginine Â£Â£Â¾Â«Â°Â±Ã‹Ã¡ 
+	'ATA' => 'I', # Isoleucine Â£Â£Ã’Ã¬ÃÃÂ°Â±Ã‹Ã¡ 
+	'ATC' => 'I', # Isoleucine Â£Â£Ã’Ã¬ÃÃÂ°Â±Ã‹Ã¡ 
+	'ATT' => 'I', # Isoleucine Â£Â£Ã’Ã¬ÃÃÂ°Â±Ã‹Ã¡ 
+	'ATG' => 'M', # Methionine Â£Â£ÂµÂ°Â°Â±Ã‹Ã¡ 
+	'ACA' => 'T', # Threonine Â£Â£Ã‹Ã•Â°Â±Ã‹Ã¡ 
+	'ACC' => 'T', # Threonine Â£Â£Ã‹Ã•Â°Â±Ã‹Ã¡ 
+	'ACG' => 'T', # Threonine Â£Â£Ã‹Ã•Â°Â±Ã‹Ã¡ 
+	'ACT' => 'T', # Threonine Â£Â£Ã‹Ã•Â°Â±Ã‹Ã¡ 
+	'AAC' => 'N', # Asparagine Â£Â£ÃŒÃ¬Â¶Â¬ÃµÂ£Â°Â· 
+	'AAT' => 'N', # Asparagine Â£Â£ÃŒÃ¬Â¶Â¬ÃµÂ£Â°Â· 
+	'AAA' => 'K', # Lysine Â£Â£Ã€ÂµÂ°Â±Ã‹Ã¡ 
+	'AAG' => 'K', # Lysine Â£Â£Ã€ÂµÂ°Â±Ã‹Ã¡ 
+	'AGC' => 'S', # Serine Â£Â£Ã‹Â¿Â°Â±Ã‹Ã¡ 
+	'AGT' => 'S', # Serine Â£Â£Ã‹Â¿Â°Â±Ã‹Ã¡ 
+	'AGA' => 'R', # Arginine Â£Â£Â¾Â«Â°Â±Ã‹Ã¡ 
+	'AGG' => 'R', # Arginine Â£Â£Â¾Â«Â°Â±Ã‹Ã¡ 
+	'CCC' => 'P', # Proline Â£Â£Â¸Â¬Â°Â±Ã‹Ã¡ 
+	'CCG' => 'P', # Proline Â£Â£Â¸Â¬Â°Â±Ã‹Ã¡ 
+	'CCT' => 'P', # Proline Â£Â£Â¸Â¬Â°Â±Ã‹Ã¡ 
+	'CAC' => 'H', # Histidine Â£Â£Ã—Ã©Â°Â±Ã‹Ã¡ 
+	'GTA' => 'V', # Valine Â£Â£Ã§Ã“Â°Â±Ã‹Ã¡ 
+	'GTC' => 'V', # Valine Â£Â£Ã§Ã“Â°Â±Ã‹Ã¡ 
+	'GTG' => 'V', # Valine Â£Â£Ã§Ã“Â°Â±Ã‹Ã¡ 
+	'GTT' => 'V', # Valine Â£Â£Ã§Ã“Â°Â±Ã‹Ã¡ 
+	'GCA' => 'A', # Alanine Â£Â£Â±Ã»Â°Â±Ã‹Ã¡ 
+	'GCC' => 'A', # Alanine Â£Â£Â±Ã»Â°Â±Ã‹Ã¡ 
+	'GCG' => 'A', # Alanine Â£Â£Â±Ã»Â°Â±Ã‹Ã¡ 
+	'GCT' => 'A', # Alanine Â£Â£Â±Ã»Â°Â±Ã‹Ã¡ 
+	'GAC' => 'D', # Aspartic Acid Â£Â£ÃŒÃ¬Â¶Â¬Â°Â±Ã‹Ã¡ 
+	'GAT' => 'D', # Aspartic Acid Â£Â£ÃŒÃ¬Â¶Â¬Â°Â±Ã‹Ã¡ 
+	'GAA' => 'E', # Glutamic Acid Â£Â£Â¹ÃˆÂ°Â±Ã‹Ã¡ 
+	'GAG' => 'E', # Glutamic Acid Â£Â£Â¹ÃˆÂ°Â±Ã‹Ã¡ 
+	'GGA' => 'G', # Glycine Â£Â£Â¸ÃŠÂ°Â±Ã‹Ã¡ 
+	'GGC' => 'G', # Glycine Â£Â£Â¸ÃŠÂ°Â±Ã‹Ã¡ 
+	'GGG' => 'G', # Glycine Â£Â£Â¸ÃŠÂ°Â±Ã‹Ã¡ 
+	'GGT' => 'G' # Glycine Â£Â£Â¸ÃŠÂ°Â±Ã‹Ã¡ 
 	);
 	return $genetic_code{$codon};
 }
