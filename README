@@ -22,7 +22,7 @@ This program can assemble and/or annotate genome for new genome and known genome
 
 Genome sequence, annotation and sequence variant files should be uncompressed files. The name of annotation file should be ended with suffix *.tbl, *.gtf, *.gff, *.gff2, *.gff3 or *.bed. If you want run program multiple times with different parameters, please use "-o" option to assign different prefix name for output files. To filter false positive sequence variants, we use 3 as the default minimum reads depth and 3 as the default minimum alt allele reads coverage, because most of false positive variants come from the low depth and low alt coverage records according to our previous study. Although we filtered genome comparative result (obtained by BLAT) for reference and new genome sequence, user can manually check the *.psl file for higher accuracy if possible and only remain the most possible direction results (plus or minus). Moreover, if comparing with different assembly version or different strain of same species, we can use the default minIdentity parameter (90) for BLAT, however, if comparing with different species, we recommend using 50 as minIdentity by option -m (-m 50) for BLAT. To convert BAM file to SAM file, RGAAT need samtools.
 
-RGAAT is freely available at https://sourceforge.net/projects/rgaat/.
+RGAAT is freely available at github.
 
 PREREQUISITES
 =============
