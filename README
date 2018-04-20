@@ -1,0 +1,321 @@
+NAME
+====
+
+RGAAT - Reference based genome assembly and annotation tool for new genome and known genome upgrade  
+
+VERSION
+=======
+
+Version 1.0
+
+COPYRIGHT
+=========
+
+Copyright 2016 - Wanfei Liu & Shuangyang Wu & Qiang Lin - Beijing Institute of Genomics, Chinese Academy of Sciences.
+
+This tool is a free package; you can redistribute it and/or modify it freely.
+
+INTRODUCTION
+============
+
+This program can assemble and/or annotate genome for new genome and known genome upgrade using sequence alignment file (SAM or BAM format), sequence variant file (VCF format or five coloum table (tab-delimited, including chromosome, position, id, reference allele and alternative allele)) or new genome sequence file (FASTA format) based on reference genome sequence file (FASTA format) and annotation file (TBL, GTF, GFF, GFF3 or BED format).
+
+Genome sequence, annotation and sequence variant files should be uncompressed files. The name of annotation file should be ended with suffix *.tbl, *.gtf, *.gff, *.gff2, *.gff3 or *.bed. If you want run program multiple times with different parameters, please use "-o" option to assign different prefix name for output files. To filter false positive sequence variants, we use 3 as the default minimum reads depth and 3 as the default minimum alt allele reads coverage, because most of false positive variants come from the low depth and low alt coverage records according to our previous study. Although we filtered genome comparative result (obtained by BLAT) for reference and new genome sequence, user can manually check the *.psl file for higher accuracy if possible and only remain the most possible direction results (plus or minus). Moreover, if comparing with different assembly version or different strain of same species, we can use the default minIdentity parameter (90) for BLAT, however, if comparing with different species, we recommend using 50 as minIdentity by option -m (-m 50) for BLAT. To convert BAM file to SAM file, RGAAT need samtools.
+
+RGAAT is freely available at https://sourceforge.net/projects/rgaat/.
+
+PREREQUISITES
+=============
+
+Before running, the following software or program are required:
+-	Perl Environment (perl v5.18.4 or later (it can be lower))
+-	Perl module: Getopt::Long; Text::NSP; SVG
+-	BLAT (BLAT v. 35 or above)
+-	samtools (tested on samtools Version: 1.2)
+
+RGAAT has been tested on Linux.
+
+INSTALLATION
+============
+
+This package doesn't need installation. You can run it using absolute path after decompressed it.
+
+COMMAND LINE
+============
+
+Run RGAAT.pl without any parameter, it will print below usage on the screen.
+
+        Author: Wanfei Liu
+        Email: <liuwf@big.ac.cn>
+        Date: May 16, 2016
+        Version: 1.0 version
+
+        Introduction
+        This program can assemble and/or annotate genome for new genome and known genome upgrade using sequence alignment file (SAM or BAM format), sequence variant file (VCF format or five coloum table (tab-delimited, including chromosome, position, id, reference allele and alternative allele)) or new genome sequence file (FASTA format) based on reference genome sequence file (FASTA format) and/or annotation file (TBL, GTF, GFF, GFF3 or BED format).
+
+        Usage: perl RGAAT.pl -g genome_sequence(FASTA) -a annotation(TBL, GTF, GFF, GFF3 or BED) [-s SAM_file | -b BAM_file | -v VCF_file | -n new_genome_file] -o prefix_of_output_file.
+
+           -g: the absolute path of genome sequence file (FASTA format, required).
+           -a: the absolute path of genome annotation file (TBL, GTF, GFF, GFF3 or BED format, required for annotation). 
+           -s: the absolute path of SAM file (sorted according to coordinate, it is mututally exclusive with -b, -v and -n).
+           -b: the absolute path of BAM file (sorted according to coordinate, it is mututally exclusive with -s, -v and -n).
+           -v: the absolute path of sequence variant file (VCF format or five coloum table (tab-delimited, including chromosome, position, id, reference allele and alternative allele), it is mututally exclusive with -s, -b and -n).
+           -n: the absolute path of new genome sequence file (FASTA format, it is mututally exclusive with -s, -b and -v).
+           -m: the minIdentity for BLAT comparative between reference and new genome (default value is 90).
+           -q: quality threshold for reads (default value is 30).
+           -l: read length threshold (default value is 30).
+           -d: read depth threshold for sequence variant (default value is 3).
+           -c: allele depth threshold for sequence variant (default value is 3).
+           -p: allele proportion threshold for sequence variant (default value is 0.5).
+          -fu: filter unpaired reads (yes or no, default value is no).
+          -fm: filter multiple mapping reads (yes or no, default value is yes).
+           -o: the prefix of output file (required).
+
+        Note: Genome sequence, annotation and sequence variant files should be uncompressed files. The name of annotation file should be ended with suffix *.tbl, *.gtf, *.gff, *.gff2, *.gff3 or *.bed. If you want run program multiple times with different parameters, please use "-o" option to assign different prefix name for output files. To filter false positive sequence variants, we use 3 as the default minimum reads depth and 3 as the default minimum alt allele reads coverage, because most of false positive variants come from the low depth and low alt coverage records according to our previous study. Although we filtered genome comparative result (obtained by BLAT) for reference and new genome sequence, user can manually check the *.psl file for higher accuracy if possible and only remain the most possible direction results (plus or minus). Moreover, if comparing with different assembly version or different strain of same species, we can use the default minIdentity parameter (90) for BLAT, however, if comparing with different species, we recommend using 50 as minIdentity by option -m (-m 50) for BLAT. To convert BAM file to SAM file, RGAAT need samtools.
+
+INPUTFILES
+==========
+
+RGAAT need at least two necessary input files:
+-	Reference genome file in FASTA format.
+-	Sequence alignment file (SAM or BAM format), sequence variant file (VCF format or five coloum table) or new genome sequence file (FASTA format).
+
+If you need to annoate upgrade or new genome, you must provide reference annotation file (TBL, GTF, GFF, GFF3 or BED format). We prefer to use TBL format file (feature table file, http://www.ncbi.nlm.nih.gov/projects/Sequin/table.html) as annotation file, which can be download from each genome sequence record by click “Send -> Complete Record -> File -> Format -> Feature Table -> Create File” easily in nucleotide database of NCBI.
+
+OUTPUTFILES
+===========
+
+RGAAT mainly produces output files in simple tab-delimited table files.
+
+1.	*.var (variant calling result)
+The identified sequence variants in reference genome.
+
+##fileformat=VCF like format
+##INFO=<ID=RDP,Number=1,Type=Integer,Description=\"All mapped reads depth after reads filter\">
+##INFO=<ID=DP,Number=1,Type=Integer,Description=\"High quality reads depth; some reads and loci may have been filtered\">
+##INFO=<ID=AF,Number=A,Type=Float,Description=\"Allele Frequency, for each ALT allele, in the same order as listed\">
+##INFO=<ID=BQ,Number=1,Type=Integer,Description=\"Locus base Quality\">
+##INFO=<ID=MP,Number=1,Type=Integer,Description=\"Multiple mapped reads depth\">
+##INFO=<ID=IC,Number=1,Type=Integer,Description=\"Insertion reads count\">
+##INFO=<ID=DC,Number=1,Type=Integer,Description=\"Deletion reads count\">
+##INFO=<ID=PC,Number=1,Type=Integer,Description=\"Plus strand reads count\">
+##INFO=<ID=MC,Number=1,Type=Integer,Description=\"Minus strand reads count\">
+##INFO=<ID=SC,Number=1,Type=Integer,Description=\"Startpoint count\">
+##INFO=<ID=Ref,Number=1,Type=String,Description=\"Reference allele\">
+##INFO=<ID=Alt,Number=1,Type=String,Description=\"Alternative allele\">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	
+
+Main fields are:
+-	CHROM: chromosome name;
+-	POS: nucleotide position in chromosome (1-based);
+-	ID: sequence variant ID;
+-	Ref: reference allele;
+-	Alt: alternative allele;
+-	QUAL: variant quality;
+-	FILTER: variant filter;
+-	INFO: detail information for variant as explained above;
+-	FORMAT: ignored;
+
+2.	*.genome_update (main result)
+The updated genome sequence in FASTA format according to sequence alignment result or sequence variant result.
+
+3.	*.pos_change
+The genome coordinate conversion file between reference genome and updated genome/new genome.
+#Chr	OldStart	OldEnd	NewStart	NewEnd
+
+Main fields are:
+-	Chr: chromosome name;
+-	OldStart: start position in reference genome;
+-	OldEnd: end position in reference genome;
+-	NewStart: start position in updated genome/new genome;
+-	NewEnd: end position in updated genome/new genome;
+-	Strand: strand information ("+" or "-") for updated genome/new genome comparing with reference genome;
+
+4.	*.anno_update
+The annotation file for updated genome/new genome. The file format is as reference annotation file.
+
+5.	*.RefChr_NewChr.svg
+The genome comparison picture between reference genome and updated/new genome. Gene names and gene regions were plotted for reference and updated/new genome. The identical regions were connected by blue quadrilateral while the inconsistent regions were connected by purple quadrilateral. 
+
+6.	*.psl
+The genome alignment result by BLAT. This file can be produced when assign "-n" parameter.
+
+7.	*.filter.psl
+The filtered genome alignment result. This file can be produced when assign "-n" parameter.
+
+Note: In default, the error messages or running messages are printed in screen. You can redirect the screen output into a file.
+
+TEST & EXAMPLE
+==============
+
+RGAAT has been tested in three ways based on sequence alignment result, sequence variant result and genome comparison.
+
+1 Run RGAAT using sequence alignment result
+For sequence alignment result, we first use bowtie2 (v2.2.4) to align DNA-seq data to reference genome with default parameters and obtained *.sam file. Then the *.sam file was converted to *.bam file and sorted according to the coodinate (*.sorted.bam) by samtools (Version 1.2).
+
+1.1 For SAM file, the commond line and running messages are as following:
+Commond line: nohup perl RGAAT.pl -g coco_cp.v1.fa -a coco_cp.v1.tbl -s coco_cp.sam -o coco_cp.sam > coco_cp.sam.nohup & 
+
+Running messages:
+Start time: Sun May 22 19:01:53 2016.
+RGAAT.pl -a coco_cp.v1.tbl -g coco_cp.v1.fa -s coco_cp.sam -o coco_cp.sam
+Start identify sequence variant: Sun May 22 19:01:53 2016.
+Processed 1000000 reads.
+Processed 2000000 reads.
+Processed 3000000 reads.
+Processed 4000000 reads.
+Processed 5000000 reads.
+Processed 6000000 reads.
+Processed 7000000 reads.
+Processed 8000000 reads.
+Processed 9000000 reads.
+#Total reads is 9402591.
+#Total filtered reads is 9294498
+#The filter reads are as following:
+Unmap	61279
+PCR_duplicate	0
+Quality_control	46814
+Multiple	0
+Short_anchor	0
+Low_quality	0
+Sequence variant identified: Sun May 22 20:40:03 2016.
+Read genome file: Sun May 22 20:40:04 2016.
+Update genome: Sun May 22 20:40:04 2016.
+Genome comparison: Sun May 22 20:40:04 2016.
+End time: Sun May 22 20:40:07 2016.
+
+1.2 For BAM file, the commond line and running messages are as following:
+Commond line: nohup perl RGAAT.pl -g coco_cp.v1.fa -a coco_cp.v1.tbl -s coco_cp.sorted.bam -o coco_cp.bam > coco_cp.bam.nohup & 
+
+Running messages:
+Start time: Sun May 22 19:16:50 2016.
+RGAAT.pl -a coco_cp.v1.tbl -o coco_cp.bam -g coco_cp.v1.fa -b coco_cp.sorted.bam
+Start identify sequence variant: Sun May 22 19:16:50 2016.
+Processed 1000000 reads.
+Processed 2000000 reads.
+Processed 3000000 reads.
+Processed 4000000 reads.
+Processed 5000000 reads.
+Processed 6000000 reads.
+Processed 7000000 reads.
+Processed 8000000 reads.
+Processed 9000000 reads.
+#Total reads is 9402591.
+#Total filtered reads is 9294498
+#The filter reads are as following:
+Unmap	61279
+PCR_duplicate	0
+Quality_control	46814
+Multiple	0
+Short_anchor	0
+Low_quality	0
+Sequence variant identified: Sun May 22 20:24:31 2016.
+Read genome file: Sun May 22 20:24:32 2016.
+Update genome: Sun May 22 20:24:32 2016.
+Genome comparison: Sun May 22 20:24:32 2016.
+End time: Sun May 22 20:24:35 2016.
+
+2 Run RGAAT using sequence variant result
+To obtian the sequence variant result, we first use samtools and gatk to identify sequence variant.
+
+For samtools, we used the following commond lines (samtools: Version 1.2, bcftools: Version 1.2):
+samtools mpileup -d 100000 -L 100000 -m 3 -v -f coco_cp.correct.fa coco_cp.sorted.bam --output coco_cp.sorted.vcf&
+bcftools call -o coco_cp.sorted.call.vcf -O z -c coco_cp.sorted.vcf&
+bcftools view -O v -o coco_cp.samtools.vcf coco_cp.sorted.call.vcf&
+
+For gatk, we used the following commond lines (GATK: v3.3-0-g37228af, picard-tools: Version 1.119):
+java -jar CreateSequenceDictionary.jar R= coco_cp.correct.fa O= coco_cp.correct.dict &
+java -jar MarkDuplicates.jar INPUT=coco_cp.sorted.bam OUTPUT=coco_cp.sorted.markdup.bam METRICS_FILE=coco_cp.sorted.markdup.metrics ASSUME_SORTED=true &
+java -jar AddOrReplaceReadGroups.jar INPUT=coco_cp.sorted.markdup.bam OUTPUT=coco_cp.sorted.markdupnew.bam SORT_ORDER=coordinate RGPL=illumina RGLB=pairend180bp RGSM=coco_cp RGPU=NONE &
+java -jar GenomeAnalysisTK.jar -U ALL --filter_reads_with_N_cigar -T RealignerTargetCreator -R coco_cp.correct.fa -I coco_cp.sorted.markdupnew.bam -o coco_cp.sorted.markdupnew.intervals &
+java -jar GenomeAnalysisTK.jar -U ALL --filter_reads_with_N_cigar -T IndelRealigner -R coco_cp.correct.fa -I coco_cp.sorted.markdupnew.bam -targetIntervals coco_cp.sorted.markdupnew.intervals -o coco_cp.sorted.markdupnew2.bam &
+java -jar GenomeAnalysisTK.jar -T HaplotypeCaller -R coco_cp.correct.fa -I coco_cp.sorted.markdupnew2.bam -o coco_cp.gatk.vcf -stand_call_conf 20 -stand_emit_conf 20 &
+
+2.1 For VCF file obtained by gatk, the commond line and running messages are as following:
+Commond line: perl RGAAT.pl -g coco_cp.v1.fa -a coco_cp.v1.tbl -v coco_cp.gatk.vcf -o coco_cp.gatk > coco_cp.gatk.nohup & 
+
+Running messages:
+Start time: Sun May 22 19:20:12 2016.
+RGAAT.pl -v coco_cp.gatk.vcf -g coco_cp.v1.fa -o coco_cp.gatk -a coco_cp.v1.tbl
+Reads sequence variant file: Sun May 22 19:20:12 2016.
+Read genome file: Sun May 22 19:20:12 2016.
+Update genome: Sun May 22 19:20:12 2016.
+Genome comparison: Sun May 22 19:20:13 2016.
+End time: Sun May 22 19:20:15 2016.
+
+2.2 For VCF file obtained by samtools, the commond line and running messages are as following:
+Commond line: nohup perl RGAAT.pl -g coco_cp.v1.fa -a coco_cp.v1.tbl -v coco_cp.samtools.vcf -o coco_cp.samtools > coco_cp.samtools.nohup &
+
+Running messages:
+Start time: Sun May 22 19:48:16 2016.
+RGAAT.pl -o coco_cp.samtools -a coco_cp.v1.tbl -v coco_cp.samtools.vcf -g coco_cp.v1.fa
+Reads sequence variant file: Sun May 22 19:48:16 2016.
+Read genome file: Sun May 22 19:48:19 2016.
+Update genome: Sun May 22 19:48:19 2016.
+Genome comparison: Sun May 22 19:48:19 2016.
+End time: Sun May 22 19:48:22 2016.
+
+2.3 For five table file obtained by manually inspecting sequence alignment file, the commond line and running messages are as following:
+Commond line: perl RGAAT.pl -g coco_cp.v1.fa -a coco_cp.v1.tbl -v coco_cp.true.vcf -o coco_cp.true > coco_cp.true.nohup &
+
+Running messages:
+Start time: Sun May 29 13:06:01 2016.
+RGAAT.pl -o coco_cp.true -v coco_cp.true.vcf -a coco_cp.v1.tbl -g coco_cp.v1.fa
+Reads sequence variant file: Sun May 29 13:06:01 2016.
+Read genome file: Sun May 29 13:06:01 2016.
+Update genome: Sun May 29 13:06:01 2016.
+Genome comparison: Sun May 29 13:06:01 2016.
+End time: Sun May 29 13:06:04 2016.
+
+3 Run RGAAT by genome comparison
+Commond line: perl RGAAT.pl -g coco_cp.v1.fa -a coco_cp.v1.tbl -n coco_cp.v2.fa -o coco_cp.blat > coco_cp.blat.nohup & 
+
+Running messages:
+Start time: Sun May 22 20:46:29 2016.
+RGAAT.pl -n coco_cp.v2.fa -a coco_cp.v1.tbl -o coco_cp.blat -g coco_cp.v1.fa
+Genome comparison by BLAT: Sun May 22 20:46:29 2016.
+Loaded 154535 letters in 1 sequences
+Searched 154740 bases in 1 sequences
+BLAT result filter: Sun May 22 20:46:31 2016.
+Identify sequence variant: Sun May 22 20:46:31 2016.
+Annotation transfer: Sun May 22 20:46:31 2016.
+#Raw element:
+CDS	93
+exon	54
+gene	141
+rRNA	8
+tRNA	40
+#Complete element:
+CDS	93
+exon	54
+gene	141
+rRNA	8
+tRNA	40
+#Check element:
+Genome comparison: Sun May 22 20:46:33 2016.
+End time: Sun May 22 20:46:36 2016.
+
+4. IGAAT result files (partial)
+4.1	Figure - coco_cp.true.Cp_Cp.svg. genome comparison between reference and updated/new genome. Gene names and gene regions were plotted for reference and updated/new genome. The identical regions were connected by blue quadrilateral while the inconsistent regions were connected by purple quadrilateral. 
+
+4.2	Tables
+Table 1 - coco_cp.true.pos_change (partial)
+#Chr	OldStart	OldEnd	NewStart	NewEnd	Strand
+Cp	1	186	1	186	NewGenome	+
+Cp	187	464	188	465	NewGenome	+
+Cp	465	520	467	522	NewGenome	+
+Cp	521	3179	524	3182	NewGenome	+
+Cp	3180	6977	3184	6981	NewGenome	+
+
+SUBPROGRAM
+==========
+
+We also provide a subprogram named sam2variant.pl for identification sequence variants using sequence alignment file (SAM format) and a subprogram named variant_filter.pl for filter sequence variants according to the attributes of sequence variant, such as base quality, allele frequency, multiple mapping reads percent, reads depth, and alternative allele depth.
+
+CONTACT
+=======
+
+If you have any question or suggestion, please contact us.
+
+Wanfei Liu & Shuangyang Wu & Qiang Lin
+Email: <liuwf@big.ac.cn> & <wushy@big.ac.cn> & <linq@big.ac.cn>
